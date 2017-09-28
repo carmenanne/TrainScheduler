@@ -28,11 +28,6 @@ $("#submit-button").on("click", function(event){
 
   database.ref().push(newTrain);
 
-  console.log(newTrain.name);
-  console.log(newTrain.destination);
-  console.log(newTrain.firstTrain);
-  console.log(newTrain.frequency);
-
   alert("New Train successfully added");
 
   $("train-name-input").val("");
@@ -50,36 +45,31 @@ database.ref().on("child_added", function(childSnapshot, prevChildKey){
   var firstTrain = childSnapshot.val().firstTrain;
   var frequency = childSnapshot.val().frequency;
 
-  console.log(trainName);
-  console.log(destination);
-  console.log(firstTrain);
-  console.log(frequency);
 
-//calculate nextArrival by taking start time...
-//convert to unix...
-//increment by 'frequency'
-//if newTime < current moment, do nothing
-//if newTime >= current moment, display next time only
-  var u = moment().unix();
-  console.log(u)
+var firstTimeConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
 
-  var nextArrival = moment().unix();
-  // .format("hh:mm a")
-  console.log(nextArrival)
+var currentTime = moment();
 
+var nextArrival = moment().diff(moment(firstTimeConverted), "minutes");
+
+var remainder = nextArrival % frequency;
+
+var minutesTillTrain = frequency - remainder;
+
+var nextTrain = moment().add(minutesTillTrain, "minutes");
 
   var tableRow = $("<tr>");
   var trainDisplay = $("<td>").text(trainName);
   var destinationDisplay = $("<td>").text(destination);
   var frequencyDisplay = $("<td>").text((frequency) + " min");
-  var arrivalDisplay = $("<td>").text(nextArrival);
-  // var minutesDisplay = $("<td>").text(minutes-away);
+  var arrivalDisplay = $("<td>").text(moment(nextTrain).format("h:mm a"));
+  var minutesDisplay = $("<td>").text(minutesTillTrain + " min");
 
   tableRow.append(trainDisplay);
   tableRow.append(destinationDisplay);
   tableRow.append(frequencyDisplay);
   tableRow.append(arrivalDisplay);
-  // tableRow.append(minutesDisplay)
+  tableRow.append(minutesDisplay)
 
   $("tbody").append(tableRow);
 
